@@ -291,11 +291,9 @@ MStatus PoseConstraint::compute(const MPlug& plug, MDataBlock& data) {
         sclA[0] = (sclA[0] * wtA) + (sclB[0] * wtB);
         sclA[1] = (sclA[1] * wtA) + (sclB[1] * wtB);
         sclA[2] = (sclA[2] * wtA) + (sclB[2] * wtB);
-
         shrA[0] = (shrA[0] * wtA) + (shrB[0] * wtB);
         shrA[1] = (shrA[1] * wtA) + (shrB[1] * wtB);
         shrA[2] = (shrA[2] * wtA) + (shrB[2] * wtB);
-
         inputArrayHandle.next();
     }
 
