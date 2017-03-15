@@ -35,9 +35,9 @@ MObject PoseConstraint::scaleX;
 MObject PoseConstraint::scaleY;
 MObject PoseConstraint::scaleZ;
 MObject PoseConstraint::shear;
-MObject PoseConstraint::shearX;
-MObject PoseConstraint::shearY;
-MObject PoseConstraint::shearZ;
+MObject PoseConstraint::shearXY;
+MObject PoseConstraint::shearXZ;
+MObject PoseConstraint::shearYZ;
 
 
 PoseConstraint::PoseConstraint() {}
@@ -60,7 +60,7 @@ MStatus PoseConstraint::initialize() {
     fnMat.setKeyable(true);
     addAttribute(offset);
 
-    WorldMatrix = fnMat.create("WorldMatrix", "wmat", MFnMatrixAttribute::kDouble, &stat);
+    WorldMatrix = fnMat.create("WorldMatrix", "wm", MFnMatrixAttribute::kDouble, &stat);
     CHECK_MSTATUS(stat);
     fnMat.setKeyable(true);
 
@@ -82,72 +82,72 @@ MStatus PoseConstraint::initialize() {
     fnComp.setUsesArrayDataBuilder(true);
     addAttribute(input);
 
-    parentInverseMatrix = fnMat.create("parentInverseMatrix", "pinv", MFnMatrixAttribute::kDouble, &stat);
+    parentInverseMatrix = fnMat.create("parentInverseMatrix", "pm", MFnMatrixAttribute::kDouble, &stat);
     CHECK_MSTATUS(stat);
     fnMat.setKeyable(true);
     addAttribute(parentInverseMatrix);
 
     // Output Attributes
-    translateX = fnNum.create("translateX", "trax", MFnNumericData::kDouble, 0.0);
+    translateX = fnNum.create("translateX", "tx", MFnNumericData::kDouble, 0.0);
     fnNum.setWritable(false);
     fnNum.setStorable(false);
 
-    translateY = fnNum.create("translateY", "tray", MFnNumericData::kDouble, 0.0);
+    translateY = fnNum.create("translateY", "ty", MFnNumericData::kDouble, 0.0);
     fnNum.setWritable(false);
     fnNum.setStorable(false);
 
-    translateZ = fnNum.create("translateZ", "traz", MFnNumericData::kDouble, 0.0);
+    translateZ = fnNum.create("translateZ", "tz", MFnNumericData::kDouble, 0.0);
     fnNum.setWritable(false);
     fnNum.setStorable(false);
 
-    translate = fnNum.create("translate", "tra", translateX, translateY, translateZ);
+    translate = fnNum.create("translate", "t", translateX, translateY, translateZ);
     fnNum.setWritable(false);
     fnNum.setStorable(false);
 
-    rotateX = fnUnit.create("rotateX", "rotx", MFnUnitAttribute::kAngle, 0.0);
+    rotateX = fnUnit.create("rotateX", "rx", MFnUnitAttribute::kAngle, 0.0);
     fnUnit.setWritable(false);
     fnUnit.setStorable(false);
 
-    rotateY = fnUnit.create("rotateY", "roty", MFnUnitAttribute::kAngle, 0.0);
+    rotateY = fnUnit.create("rotateY", "ry", MFnUnitAttribute::kAngle, 0.0);
     fnUnit.setWritable(false);
     fnUnit.setStorable(false);
 
-    rotateZ = fnUnit.create("rotateZ", "rotz", MFnUnitAttribute::kAngle, 0.0);
+    rotateZ = fnUnit.create("rotateZ", "rz", MFnUnitAttribute::kAngle, 0.0);
     fnUnit.setWritable(false);
     fnUnit.setStorable(false);
 
-    rotate = fnNum.create("rotate", "rot", rotateX, rotateY, rotateZ);
+    rotate = fnNum.create("rotate", "r", rotateX, rotateY, rotateZ);
     fnNum.setWritable(false);
 
-    scaleX = fnNum.create("scaleX", "sclx", MFnNumericData::kDouble, 1.0);
-    fnNum.setWritable(false);
-    fnNum.setStorable(false);
-
-    scaleY = fnNum.create("scaleY", "scly", MFnNumericData::kDouble, 1.0);
+    scaleX = fnNum.create("scaleX", "sx", MFnNumericData::kDouble, 1.0);
     fnNum.setWritable(false);
     fnNum.setStorable(false);
 
-    scaleZ = fnNum.create("scaleZ", "sclz", MFnNumericData::kDouble, 1.0);
+    scaleY = fnNum.create("scaleY", "sy", MFnNumericData::kDouble, 1.0);
     fnNum.setWritable(false);
     fnNum.setStorable(false);
 
-    scale = fnNum.create("scale", "scl", scaleX, scaleY, scaleZ);
+    scaleZ = fnNum.create("scaleZ", "sz", MFnNumericData::kDouble, 1.0);
     fnNum.setWritable(false);
     fnNum.setStorable(false);
 
-    shearX = fnNum.create("shearX", "shrx", MFnNumericData::kDouble, 1.0);
+    scale = fnNum.create("scale", "s", scaleX, scaleY, scaleZ);
     fnNum.setWritable(false);
     fnNum.setStorable(false);
 
-    shearY = fnNum.create("shearY", "shry", MFnNumericData::kDouble, 1.0);
+    shearXY = fnNum.create("shearXY", "shxy", MFnNumericData::kDouble, 1.0);
     fnNum.setWritable(false);
     fnNum.setStorable(false);
 
-    shearZ = fnNum.create("shearZ", "shrz", MFnNumericData::kDouble, 1.0);
+    shearXZ = fnNum.create("shearXZ", "shxz", MFnNumericData::kDouble, 1.0);
     fnNum.setWritable(false);
     fnNum.setStorable(false);
 
-    shear = fnNum.create("shear", "shr", shearX, shearY, shearZ);
+    shearYZ = fnNum.create("shearYZ", "shyz", MFnNumericData::kDouble, 1.0);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
+
+    shear = fnNum.create("shear", "sh", shearXY, shearXZ, shearYZ);
     fnNum.setWritable(false);
     fnNum.setStorable(false);
 
@@ -173,9 +173,9 @@ MStatus PoseConstraint::initialize() {
     attributeAffects(WorldMatrix, scaleY);
     attributeAffects(WorldMatrix, scaleZ);
     attributeAffects(WorldMatrix, shear);
-    attributeAffects(WorldMatrix, shearX);
-    attributeAffects(WorldMatrix, shearY);
-    attributeAffects(WorldMatrix, shearZ);
+    attributeAffects(WorldMatrix, shearXY);
+    attributeAffects(WorldMatrix, shearXZ);
+    attributeAffects(WorldMatrix, shearYZ);
 
     attributeAffects(localOffset, translate);
     attributeAffects(localOffset, translateX);
@@ -192,7 +192,7 @@ MStatus PoseConstraint::initialize() {
     attributeAffects(localOffset, shear);
     attributeAffects(localOffset, scaleX);
     attributeAffects(localOffset, scaleY);
-    attributeAffects(localOffset, shearZ);
+    attributeAffects(localOffset, shearYZ);
 
     attributeAffects(offset, translate);
     attributeAffects(offset, translateX);
@@ -209,7 +209,7 @@ MStatus PoseConstraint::initialize() {
     attributeAffects(offset, shear);
     attributeAffects(offset, scaleX);
     attributeAffects(offset, scaleY);
-    attributeAffects(offset, shearZ);
+    attributeAffects(offset, shearYZ);
 
     attributeAffects(blend, translate);
     attributeAffects(blend, translateX);
@@ -224,9 +224,9 @@ MStatus PoseConstraint::initialize() {
     attributeAffects(blend, scaleY);
     attributeAffects(blend, scaleZ);
     attributeAffects(blend, shear);
-    attributeAffects(blend, shearX);
-    attributeAffects(blend, shearY);
-    attributeAffects(blend, shearZ);
+    attributeAffects(blend, shearXY);
+    attributeAffects(blend, shearXZ);
+    attributeAffects(blend, shearYZ);
 
     attributeAffects(parentInverseMatrix, translate);
     attributeAffects(parentInverseMatrix, translateX);
@@ -241,9 +241,9 @@ MStatus PoseConstraint::initialize() {
     attributeAffects(parentInverseMatrix, scaleY);
     attributeAffects(parentInverseMatrix, scaleZ);
     attributeAffects(parentInverseMatrix, shear);
-    attributeAffects(parentInverseMatrix, shearX);
-    attributeAffects(parentInverseMatrix, shearY);
-    attributeAffects(parentInverseMatrix, shearZ);
+    attributeAffects(parentInverseMatrix, shearXY);
+    attributeAffects(parentInverseMatrix, shearXZ);
+    attributeAffects(parentInverseMatrix, shearYZ);
 
     return MS::kSuccess;
 }
@@ -340,9 +340,9 @@ MStatus PoseConstraint::compute(const MPlug& plug, MDataBlock& data) {
     data.setClean(scaleY);
     data.setClean(scaleZ);
     data.setClean(shear);
-    data.setClean(shearX);
-    data.setClean(shearY);
-    data.setClean(shearZ);
+    data.setClean(shearXY);
+    data.setClean(shearXZ);
+    data.setClean(shearYZ);
     return MS::kSuccess;
 }
 

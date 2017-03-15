@@ -37,7 +37,9 @@ public:
     static MObject scaleY;
     static MObject scaleZ;
     static MObject shear;
-    static MObject shearX;
-    static MObject shearY;
-    static MObject shearZ;
+    static MObject shearXY;
+    static MObject shearXZ;
+    static MObject shearYZ;
 };
+
+
