@@ -249,100 +249,100 @@ MStatus PoseConstraint::initialize() {
 }
 
 MStatus PoseConstraint::compute(const MPlug& plug, MDataBlock& data) {
-	if (plug!=translate && plug!=rotate && plug!=scale && plug!=shear)
-		return MS::kUnknownParameter;
+    if (plug!=translate && plug!=rotate && plug!=scale && plug!=shear)
+        return MS::kUnknownParameter;
 
-	// inputs
-	MArrayDataHandle inputArrayHandle = data.inputArrayValue(input);
-	MMatrix invParentMat = data.inputValue(parentInverseMatrix).asMatrix();
-	MMatrix offsetTfm = data.inputValue(offset).asMatrix();
+    // inputs
+    MArrayDataHandle inputArrayHandle = data.inputArrayValue(input);
+    MMatrix invParentMat = data.inputValue(parentInverseMatrix).asMatrix();
+    MMatrix offsetTfm = data.inputValue(offset).asMatrix();
 
-	// process
-	MTransformationMatrix tfm = invParentMat.inverse();
-	MDataHandle component;
-	double wtA, wtB;
+    // process
+    MTransformationMatrix tfm = invParentMat.inverse();
+    MDataHandle component;
+    double wtA, wtB;
 
-	// a
-	MVector posA = tfm.getTranslation(MSpace::kTransform);
-	MQuaternion rotA = tfm.rotation();
-	double sclA[3];
-	tfm.getScale(sclA, MSpace::kTransform);
-	double shrA[3];
-	tfm.getShear(shrA, MSpace::kTransform);
+    // a
+    MVector posA = tfm.getTranslation(MSpace::kTransform);
+    MQuaternion rotA = tfm.rotation();
+    double sclA[3];
+    tfm.getScale(sclA, MSpace::kTransform);
+    double shrA[3];
+    tfm.getShear(shrA, MSpace::kTransform);
 
-	// b
-	MVector posB;
-	MQuaternion rotB;
-	double sclB[3];
-	double shrB[3];
+    // b
+    MVector posB;
+    MQuaternion rotB;
+    double sclB[3];
+    double shrB[3];
 
-	// interpolate ab
-	for (unsigned int i = 0; i < inputArrayHandle.elementCount(); ++i) {
-		component = inputArrayHandle.inputValue();
-		wtB = component.child(blend).asDouble();
-		tfm = component.child(localOffset).asMatrix() * component.child(WorldMatrix).asMatrix();
+    // interpolate ab
+    for (unsigned int i = 0; i < inputArrayHandle.elementCount(); ++i) {
+        component = inputArrayHandle.inputValue();
+        wtB = component.child(blend).asDouble();
+        tfm = component.child(localOffset).asMatrix() * component.child(WorldMatrix).asMatrix();
 
-		posB = tfm.getTranslation(MSpace::kTransform);
-		rotB = tfm.rotation();
-		tfm.getScale(sclB, MSpace::kTransform);
-		tfm.getShear(shrB, MSpace::kTransform);
+        posB = tfm.getTranslation(MSpace::kTransform);
+        rotB = tfm.rotation();
+        tfm.getScale(sclB, MSpace::kTransform);
+        tfm.getShear(shrB, MSpace::kTransform);
 
-		wtA = 1.0 - wtB;
-		posA = (posA * wtA) + (posB * wtB);
-		rotA = slerp(rotA, rotB, wtB);
-		sclA[0] = (sclA[0] * wtA) + (sclB[0] * wtB);
-		sclA[1] = (sclA[1] * wtA) + (sclB[1] * wtB);
-		sclA[2] = (sclA[2] * wtA) + (sclB[2] * wtB);
+        wtA = 1.0 - wtB;
+        posA = (posA * wtA) + (posB * wtB);
+        rotA = slerp(rotA, rotB, wtB);
+        sclA[0] = (sclA[0] * wtA) + (sclB[0] * wtB);
+        sclA[1] = (sclA[1] * wtA) + (sclB[1] * wtB);
+        sclA[2] = (sclA[2] * wtA) + (sclB[2] * wtB);
 
-		shrA[0] = (shrA[0] * wtA) + (shrB[0] * wtB);
-		shrA[1] = (shrA[1] * wtA) + (shrB[1] * wtB);
-		shrA[2] = (shrA[2] * wtA) + (shrB[2] * wtB);
+        shrA[0] = (shrA[0] * wtA) + (shrB[0] * wtB);
+        shrA[1] = (shrA[1] * wtA) + (shrB[1] * wtB);
+        shrA[2] = (shrA[2] * wtA) + (shrB[2] * wtB);
 
-		inputArrayHandle.next();
-	}
+        inputArrayHandle.next();
+    }
 
-	// build the tfm
-	MTransformationMatrix outTfm;
-	outTfm.setScale(sclA, MSpace::kTransform);
-	outTfm.setRotationQuaternion(rotA[0], rotA[1], rotA[2], rotA[3], MSpace::kTransform);
-	outTfm.setTranslation(posA, MSpace::kTransform);
-	outTfm.setShear(shrA, MSpace::kTransform);
-	outTfm = offsetTfm * outTfm.asMatrix() * invParentMat;
+    // build the tfm
+    MTransformationMatrix outTfm;
+    outTfm.setScale(sclA, MSpace::kTransform);
+    outTfm.setRotationQuaternion(rotA[0], rotA[1], rotA[2], rotA[3], MSpace::kTransform);
+    outTfm.setTranslation(posA, MSpace::kTransform);
+    outTfm.setShear(shrA, MSpace::kTransform);
+    outTfm = offsetTfm * outTfm.asMatrix() * invParentMat;
 
-	// ouputs
-	posA = outTfm.translation(MSpace::kTransform);
-	MEulerRotation rot = outTfm.eulerRotation();
-	outTfm.getScale(sclA, MSpace::kTransform);
-	outTfm.getShear(shrA, MSpace::kTransform);
+    // ouputs
+    posA = outTfm.translation(MSpace::kTransform);
+    MEulerRotation rot = outTfm.eulerRotation();
+    outTfm.getScale(sclA, MSpace::kTransform);
+    outTfm.getShear(shrA, MSpace::kTransform);
 
-	MDataHandle outTra = data.outputValue(translate);
-	MDataHandle outRot = data.outputValue(rotate);
-	MDataHandle outScl = data.outputValue(scale);
-	MDataHandle outShr = data.outputValue(shear);
+    MDataHandle outTra = data.outputValue(translate);
+    MDataHandle outRot = data.outputValue(rotate);
+    MDataHandle outScl = data.outputValue(scale);
+    MDataHandle outShr = data.outputValue(shear);
 
-	// set
-	outTra.setMVector(posA);
-	outRot.set(rot.x, rot.y, rot.z);
-	outScl.set(sclA[0], sclA[1], sclA[2]);
-	outShr.set(shrA[0], shrA[1], shrA[2]);
+    // set
+    outTra.setMVector(posA);
+    outRot.set(rot.x, rot.y, rot.z);
+    outScl.set(sclA[0], sclA[1], sclA[2]);
+    outShr.set(shrA[0], shrA[1], shrA[2]);
 
-	// set all the things clean
-	data.setClean(translate);
-	data.setClean(translateX);
-	data.setClean(translateY);
-	data.setClean(translateZ);
-	data.setClean(rotate);
-	data.setClean(rotateX);
-	data.setClean(rotateY);
-	data.setClean(rotateZ);
-	data.setClean(scale);
-	data.setClean(scaleX);
-	data.setClean(scaleY);
-	data.setClean(scaleZ);
-	data.setClean(shear);
-	data.setClean(shearX);
-	data.setClean(shearY);
-	data.setClean(shearZ);
-	return MS::kSuccess;
+    // set all the things clean
+    data.setClean(translate);
+    data.setClean(translateX);
+    data.setClean(translateY);
+    data.setClean(translateZ);
+    data.setClean(rotate);
+    data.setClean(rotateX);
+    data.setClean(rotateY);
+    data.setClean(rotateZ);
+    data.setClean(scale);
+    data.setClean(scaleX);
+    data.setClean(scaleY);
+    data.setClean(scaleZ);
+    data.setClean(shear);
+    data.setClean(shearX);
+    data.setClean(shearY);
+    data.setClean(shearZ);
+    return MS::kSuccess;
 }
 
