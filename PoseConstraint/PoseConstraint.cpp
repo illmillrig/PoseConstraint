@@ -45,207 +45,207 @@ PoseConstraint::PoseConstraint() {}
 PoseConstraint::~PoseConstraint() {}
 
 void* PoseConstraint::creator() {
-	return new PoseConstraint();
+    return new PoseConstraint();
 }
 
 MStatus PoseConstraint::initialize() {
-	MStatus stat;
-	MFnNumericAttribute fnNum;
-	MFnUnitAttribute fnUnit;
-	MFnMatrixAttribute fnMat;
-	MFnCompoundAttribute fnComp;
+    MStatus stat;
+    MFnNumericAttribute fnNum;
+    MFnUnitAttribute fnUnit;
+    MFnMatrixAttribute fnMat;
+    MFnCompoundAttribute fnComp;
 
-	// Input Attributes
-	offset = fnMat.create("offset", "off", MFnMatrixAttribute::kDouble);
-	fnMat.setKeyable(true);
-	addAttribute(offset);
+    // Input Attributes
+    offset = fnMat.create("offset", "off", MFnMatrixAttribute::kDouble);
+    fnMat.setKeyable(true);
+    addAttribute(offset);
 
-	WorldMatrix = fnMat.create("WorldMatrix", "wmat", MFnMatrixAttribute::kDouble, &stat);
-	CHECK_MSTATUS(stat);
-	fnMat.setKeyable(true);
+    WorldMatrix = fnMat.create("WorldMatrix", "wmat", MFnMatrixAttribute::kDouble, &stat);
+    CHECK_MSTATUS(stat);
+    fnMat.setKeyable(true);
 
-	blend = fnNum.create("blend", "blnd", MFnNumericData::kDouble, 1.0, &stat);
-	CHECK_MSTATUS(stat);
-	fnNum.setMin(0.0);
-	fnNum.setMax(1.0);
-	fnNum.setKeyable(true);
+    blend = fnNum.create("blend", "blnd", MFnNumericData::kDouble, 1.0, &stat);
+    CHECK_MSTATUS(stat);
+    fnNum.setMin(0.0);
+    fnNum.setMax(1.0);
+    fnNum.setKeyable(true);
 
-	localOffset = fnMat.create("localOffset", "loff", MFnMatrixAttribute::kDouble);
-	fnMat.setKeyable(true);
+    localOffset = fnMat.create("localOffset", "loff", MFnMatrixAttribute::kDouble);
+    fnMat.setKeyable(true);
 
-	input = fnComp.create("Input", "in", &stat);
-	CHECK_MSTATUS(stat);
-	fnComp.addChild(WorldMatrix);
-	fnComp.addChild(blend);
-	fnComp.addChild(localOffset);
-	fnComp.setArray(true);
-	fnComp.setUsesArrayDataBuilder(true);
-	addAttribute(input);
+    input = fnComp.create("Input", "in", &stat);
+    CHECK_MSTATUS(stat);
+    fnComp.addChild(WorldMatrix);
+    fnComp.addChild(blend);
+    fnComp.addChild(localOffset);
+    fnComp.setArray(true);
+    fnComp.setUsesArrayDataBuilder(true);
+    addAttribute(input);
 
-	parentInverseMatrix = fnMat.create("parentInverseMatrix", "pinv", MFnMatrixAttribute::kDouble, &stat);
-	CHECK_MSTATUS(stat);
-	fnMat.setKeyable(true);
-	addAttribute(parentInverseMatrix);
+    parentInverseMatrix = fnMat.create("parentInverseMatrix", "pinv", MFnMatrixAttribute::kDouble, &stat);
+    CHECK_MSTATUS(stat);
+    fnMat.setKeyable(true);
+    addAttribute(parentInverseMatrix);
 
-	// Output Attributes
-	translateX = fnNum.create("translateX", "trax", MFnNumericData::kDouble, 0.0);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    // Output Attributes
+    translateX = fnNum.create("translateX", "trax", MFnNumericData::kDouble, 0.0);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	translateY = fnNum.create("translateY", "tray", MFnNumericData::kDouble, 0.0);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    translateY = fnNum.create("translateY", "tray", MFnNumericData::kDouble, 0.0);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	translateZ = fnNum.create("translateZ", "traz", MFnNumericData::kDouble, 0.0);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    translateZ = fnNum.create("translateZ", "traz", MFnNumericData::kDouble, 0.0);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	translate = fnNum.create("translate", "tra", translateX, translateY, translateZ);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    translate = fnNum.create("translate", "tra", translateX, translateY, translateZ);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	rotateX = fnUnit.create("rotateX", "rotx", MFnUnitAttribute::kAngle, 0.0);
-	fnUnit.setWritable(false);
-	fnUnit.setStorable(false);
+    rotateX = fnUnit.create("rotateX", "rotx", MFnUnitAttribute::kAngle, 0.0);
+    fnUnit.setWritable(false);
+    fnUnit.setStorable(false);
 
-	rotateY = fnUnit.create("rotateY", "roty", MFnUnitAttribute::kAngle, 0.0);
-	fnUnit.setWritable(false);
-	fnUnit.setStorable(false);
+    rotateY = fnUnit.create("rotateY", "roty", MFnUnitAttribute::kAngle, 0.0);
+    fnUnit.setWritable(false);
+    fnUnit.setStorable(false);
 
-	rotateZ = fnUnit.create("rotateZ", "rotz", MFnUnitAttribute::kAngle, 0.0);
-	fnUnit.setWritable(false);
-	fnUnit.setStorable(false);
+    rotateZ = fnUnit.create("rotateZ", "rotz", MFnUnitAttribute::kAngle, 0.0);
+    fnUnit.setWritable(false);
+    fnUnit.setStorable(false);
 
-	rotate = fnNum.create("rotate", "rot", rotateX, rotateY, rotateZ);
-	fnNum.setWritable(false);
+    rotate = fnNum.create("rotate", "rot", rotateX, rotateY, rotateZ);
+    fnNum.setWritable(false);
 
-	scaleX = fnNum.create("scaleX", "sclx", MFnNumericData::kDouble, 1.0);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    scaleX = fnNum.create("scaleX", "sclx", MFnNumericData::kDouble, 1.0);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	scaleY = fnNum.create("scaleY", "scly", MFnNumericData::kDouble, 1.0);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    scaleY = fnNum.create("scaleY", "scly", MFnNumericData::kDouble, 1.0);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	scaleZ = fnNum.create("scaleZ", "sclz", MFnNumericData::kDouble, 1.0);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    scaleZ = fnNum.create("scaleZ", "sclz", MFnNumericData::kDouble, 1.0);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	scale = fnNum.create("scale", "scl", scaleX, scaleY, scaleZ);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    scale = fnNum.create("scale", "scl", scaleX, scaleY, scaleZ);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	shearX = fnNum.create("shearX", "shrx", MFnNumericData::kDouble, 1.0);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    shearX = fnNum.create("shearX", "shrx", MFnNumericData::kDouble, 1.0);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	shearY = fnNum.create("shearY", "shry", MFnNumericData::kDouble, 1.0);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    shearY = fnNum.create("shearY", "shry", MFnNumericData::kDouble, 1.0);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	shearZ = fnNum.create("shearZ", "shrz", MFnNumericData::kDouble, 1.0);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    shearZ = fnNum.create("shearZ", "shrz", MFnNumericData::kDouble, 1.0);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	shear = fnNum.create("shear", "shr", shearX, shearY, shearZ);
-	fnNum.setWritable(false);
-	fnNum.setStorable(false);
+    shear = fnNum.create("shear", "shr", shearX, shearY, shearZ);
+    fnNum.setWritable(false);
+    fnNum.setStorable(false);
 
-	output = fnComp.create("output", "out");
-	fnComp.setWritable(false);
-	fnComp.addChild(translate);
-	fnComp.addChild(rotate);
-	fnComp.addChild(scale);
-	fnComp.addChild(shear);
-	CHECK_MSTATUS(stat);
-	addAttribute(output);
+    output = fnComp.create("output", "out");
+    fnComp.setWritable(false);
+    fnComp.addChild(translate);
+    fnComp.addChild(rotate);
+    fnComp.addChild(scale);
+    fnComp.addChild(shear);
+    CHECK_MSTATUS(stat);
+    addAttribute(output);
 
-	attributeAffects(WorldMatrix, translate);
-	attributeAffects(WorldMatrix, translateX);
-	attributeAffects(WorldMatrix, translateY);
-	attributeAffects(WorldMatrix, translateZ);
-	attributeAffects(WorldMatrix, rotate);
-	attributeAffects(WorldMatrix, rotateX);
-	attributeAffects(WorldMatrix, rotateY);
-	attributeAffects(WorldMatrix, rotateZ);
-	attributeAffects(WorldMatrix, scale);
-	attributeAffects(WorldMatrix, scaleX);
-	attributeAffects(WorldMatrix, scaleY);
-	attributeAffects(WorldMatrix, scaleZ);
-	attributeAffects(WorldMatrix, shear);
-	attributeAffects(WorldMatrix, shearX);
-	attributeAffects(WorldMatrix, shearY);
-	attributeAffects(WorldMatrix, shearZ);
+    attributeAffects(WorldMatrix, translate);
+    attributeAffects(WorldMatrix, translateX);
+    attributeAffects(WorldMatrix, translateY);
+    attributeAffects(WorldMatrix, translateZ);
+    attributeAffects(WorldMatrix, rotate);
+    attributeAffects(WorldMatrix, rotateX);
+    attributeAffects(WorldMatrix, rotateY);
+    attributeAffects(WorldMatrix, rotateZ);
+    attributeAffects(WorldMatrix, scale);
+    attributeAffects(WorldMatrix, scaleX);
+    attributeAffects(WorldMatrix, scaleY);
+    attributeAffects(WorldMatrix, scaleZ);
+    attributeAffects(WorldMatrix, shear);
+    attributeAffects(WorldMatrix, shearX);
+    attributeAffects(WorldMatrix, shearY);
+    attributeAffects(WorldMatrix, shearZ);
 
-	attributeAffects(localOffset, translate);
-	attributeAffects(localOffset, translateX);
-	attributeAffects(localOffset, translateY);
-	attributeAffects(localOffset, translateZ);
-	attributeAffects(localOffset, rotate);
-	attributeAffects(localOffset, rotateX);
-	attributeAffects(localOffset, rotateY);
-	attributeAffects(localOffset, rotateZ);
-	attributeAffects(localOffset, scale);
-	attributeAffects(localOffset, scaleX);
-	attributeAffects(localOffset, scaleY);
-	attributeAffects(localOffset, scaleZ);
-	attributeAffects(localOffset, shear);
-	attributeAffects(localOffset, scaleX);
-	attributeAffects(localOffset, scaleY);
-	attributeAffects(localOffset, shearZ);
+    attributeAffects(localOffset, translate);
+    attributeAffects(localOffset, translateX);
+    attributeAffects(localOffset, translateY);
+    attributeAffects(localOffset, translateZ);
+    attributeAffects(localOffset, rotate);
+    attributeAffects(localOffset, rotateX);
+    attributeAffects(localOffset, rotateY);
+    attributeAffects(localOffset, rotateZ);
+    attributeAffects(localOffset, scale);
+    attributeAffects(localOffset, scaleX);
+    attributeAffects(localOffset, scaleY);
+    attributeAffects(localOffset, scaleZ);
+    attributeAffects(localOffset, shear);
+    attributeAffects(localOffset, scaleX);
+    attributeAffects(localOffset, scaleY);
+    attributeAffects(localOffset, shearZ);
 
-	attributeAffects(offset, translate);
-	attributeAffects(offset, translateX);
-	attributeAffects(offset, translateY);
-	attributeAffects(offset, translateZ);
-	attributeAffects(offset, rotate);
-	attributeAffects(offset, rotateX);
-	attributeAffects(offset, rotateY);
-	attributeAffects(offset, rotateZ);
-	attributeAffects(offset, scale);
-	attributeAffects(offset, scaleX);
-	attributeAffects(offset, scaleY);
-	attributeAffects(offset, scaleZ);
-	attributeAffects(offset, shear);
-	attributeAffects(offset, scaleX);
-	attributeAffects(offset, scaleY);
-	attributeAffects(offset, shearZ);
+    attributeAffects(offset, translate);
+    attributeAffects(offset, translateX);
+    attributeAffects(offset, translateY);
+    attributeAffects(offset, translateZ);
+    attributeAffects(offset, rotate);
+    attributeAffects(offset, rotateX);
+    attributeAffects(offset, rotateY);
+    attributeAffects(offset, rotateZ);
+    attributeAffects(offset, scale);
+    attributeAffects(offset, scaleX);
+    attributeAffects(offset, scaleY);
+    attributeAffects(offset, scaleZ);
+    attributeAffects(offset, shear);
+    attributeAffects(offset, scaleX);
+    attributeAffects(offset, scaleY);
+    attributeAffects(offset, shearZ);
 
-	attributeAffects(blend, translate);
-	attributeAffects(blend, translateX);
-	attributeAffects(blend, translateY);
-	attributeAffects(blend, translateZ);
-	attributeAffects(blend, rotate);
-	attributeAffects(blend, rotateX);
-	attributeAffects(blend, rotateY);
-	attributeAffects(blend, rotateZ);
-	attributeAffects(blend, scale);
-	attributeAffects(blend, scaleX);
-	attributeAffects(blend, scaleY);
-	attributeAffects(blend, scaleZ);
-	attributeAffects(blend, shear);
-	attributeAffects(blend, shearX);
-	attributeAffects(blend, shearY);
-	attributeAffects(blend, shearZ);
+    attributeAffects(blend, translate);
+    attributeAffects(blend, translateX);
+    attributeAffects(blend, translateY);
+    attributeAffects(blend, translateZ);
+    attributeAffects(blend, rotate);
+    attributeAffects(blend, rotateX);
+    attributeAffects(blend, rotateY);
+    attributeAffects(blend, rotateZ);
+    attributeAffects(blend, scale);
+    attributeAffects(blend, scaleX);
+    attributeAffects(blend, scaleY);
+    attributeAffects(blend, scaleZ);
+    attributeAffects(blend, shear);
+    attributeAffects(blend, shearX);
+    attributeAffects(blend, shearY);
+    attributeAffects(blend, shearZ);
 
-	attributeAffects(parentInverseMatrix, translate);
-	attributeAffects(parentInverseMatrix, translateX);
-	attributeAffects(parentInverseMatrix, translateY);
-	attributeAffects(parentInverseMatrix, translateZ);
-	attributeAffects(parentInverseMatrix, rotate);
-	attributeAffects(parentInverseMatrix, rotateX);
-	attributeAffects(parentInverseMatrix, rotateY);
-	attributeAffects(parentInverseMatrix, rotateZ);
-	attributeAffects(parentInverseMatrix, scale);
-	attributeAffects(parentInverseMatrix, scaleX);
-	attributeAffects(parentInverseMatrix, scaleY);
-	attributeAffects(parentInverseMatrix, scaleZ);
-	attributeAffects(parentInverseMatrix, shear);
-	attributeAffects(parentInverseMatrix, shearX);
-	attributeAffects(parentInverseMatrix, shearY);
-	attributeAffects(parentInverseMatrix, shearZ);
+    attributeAffects(parentInverseMatrix, translate);
+    attributeAffects(parentInverseMatrix, translateX);
+    attributeAffects(parentInverseMatrix, translateY);
+    attributeAffects(parentInverseMatrix, translateZ);
+    attributeAffects(parentInverseMatrix, rotate);
+    attributeAffects(parentInverseMatrix, rotateX);
+    attributeAffects(parentInverseMatrix, rotateY);
+    attributeAffects(parentInverseMatrix, rotateZ);
+    attributeAffects(parentInverseMatrix, scale);
+    attributeAffects(parentInverseMatrix, scaleX);
+    attributeAffects(parentInverseMatrix, scaleY);
+    attributeAffects(parentInverseMatrix, scaleZ);
+    attributeAffects(parentInverseMatrix, shear);
+    attributeAffects(parentInverseMatrix, shearX);
+    attributeAffects(parentInverseMatrix, shearY);
+    attributeAffects(parentInverseMatrix, shearZ);
 
-	return MS::kSuccess;
+    return MS::kSuccess;
 }
 
 MStatus PoseConstraint::compute(const MPlug& plug, MDataBlock& data) {
