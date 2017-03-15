@@ -276,8 +276,10 @@ MStatus PoseConstraint::compute(const MPlug& plug, MDataBlock& data) {
     double sclB[3];
     double shrB[3];
 
+    unsigned int num = inputArrayHandle.elementCount();
+
     // interpolate ab
-    for (unsigned int i = 0; i < inputArrayHandle.elementCount(); ++i) {
+    for (unsigned int i = 0; i < num; ++i) {
         component = inputArrayHandle.inputValue();
         wtB = component.child(blend).asDouble();
         tfm = component.child(localOffset).asMatrix() * component.child(WorldMatrix).asMatrix();
