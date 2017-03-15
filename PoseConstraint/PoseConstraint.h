@@ -9,11 +9,11 @@
 class PoseConstraint : public MPxNode {
 public:
     PoseConstraint();
-    virtual ~PoseConstraint();
+    ~PoseConstraint();
     static void* creator();
     static MStatus initialize();
-    virtual MPxNode::SchedulingType schedulingType() const override {return MPxNode::kParallel;}
-    virtual MStatus compute(const MPlug& plug, MDataBlock& data);
+    MPxNode::SchedulingType schedulingType() const override {return MPxNode::kParallel;}
+    MStatus compute(const MPlug& plug, MDataBlock& data) override;
 public:
     static MTypeId id;
     static MObject input;
