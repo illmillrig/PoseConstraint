@@ -82,7 +82,7 @@ MStatus PoseConstraint::initialize() {
     fnComp.setUsesArrayDataBuilder(true);
     addAttribute(input);
 
-    parentInverseMatrix = fnMat.create("parentInverseMatrix", "pm", MFnMatrixAttribute::kDouble, &stat);
+    parentInverseMatrix = fnMat.create("parentInverseMatrix", "pim", MFnMatrixAttribute::kDouble, &stat);
     CHECK_MSTATUS(stat);
     fnMat.setKeyable(true);
     addAttribute(parentInverseMatrix);
