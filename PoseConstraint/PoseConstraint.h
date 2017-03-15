@@ -1,9 +1,8 @@
 #pragma once
 
 #include <maya/MPxNode.h>
-#include <maya/MFnNumericAttribute.h>
 #include <maya/MTypeId.h>
-#include <vector>
+
 
 
 

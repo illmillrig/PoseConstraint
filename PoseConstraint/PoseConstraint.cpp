@@ -1,7 +1,9 @@
 
 
 #include "PoseConstraint.h"
+
 #include <maya/MGlobal.h>
+#include <maya/MFnNumericAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
 #include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnUnitAttribute.h>
@@ -9,9 +11,6 @@
 #include <maya/MVector.h>
 #include <maya/MEulerRotation.h>
 #include <maya/MQuaternion.h>
-
-#include <algorithm>
-
 
 
 MTypeId PoseConstraint::id(0x00121BD2);
