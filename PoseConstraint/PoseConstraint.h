@@ -9,7 +9,7 @@
 class PoseConstraint : public MPxNode {
 public:
     PoseConstraint() = default;
-    ~PoseConstraint() = default;
+    virtual ~PoseConstraint() = default;
     static void* creator();
     static MStatus initialize();
     MPxNode::SchedulingType schedulingType() const override {return MPxNode::kParallel;}
