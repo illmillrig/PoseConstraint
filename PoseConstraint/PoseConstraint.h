@@ -6,10 +6,11 @@
 #include <vector>
 
 
+
 class PoseConstraint : public MPxNode {
 public:
-    PoseConstraint();
-    ~PoseConstraint();
+    PoseConstraint() = default;
+    ~PoseConstraint() = default;
     static void* creator();
     static MStatus initialize();
     MPxNode::SchedulingType schedulingType() const override {return MPxNode::kParallel;}

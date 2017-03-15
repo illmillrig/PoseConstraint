@@ -13,6 +13,7 @@
 #include <algorithm>
 
 
+
 MTypeId PoseConstraint::id(0x00121BD2);
 MObject PoseConstraint::input;
 MObject PoseConstraint::blend;
@@ -39,10 +40,6 @@ MObject PoseConstraint::shearXY;
 MObject PoseConstraint::shearXZ;
 MObject PoseConstraint::shearYZ;
 
-
-PoseConstraint::PoseConstraint() {}
-
-PoseConstraint::~PoseConstraint() {}
 
 void* PoseConstraint::creator() {
     return new PoseConstraint();
