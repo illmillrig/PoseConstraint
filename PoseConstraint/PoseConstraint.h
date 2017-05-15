@@ -2,14 +2,13 @@
 
 #include <maya/MPxNode.h>
 #include <maya/MTypeId.h>
-
-
+#include <maya/MTransformationMatrix.h>
 
 
 class PoseConstraint : public MPxNode {
 public:
-    PoseConstraint() = default;
-    virtual ~PoseConstraint() = default;
+    PoseConstraint(){ };
+    virtual ~PoseConstraint(){ };
     static void* creator();
     static MStatus initialize();
     MPxNode::SchedulingType schedulingType() const override {return MPxNode::kParallel;}
@@ -40,6 +39,9 @@ public:
     static MObject shearXY;
     static MObject shearXZ;
     static MObject shearYZ;
+
+    static MObject rotateOrder;
+    static MTransformationMatrix::RotationOrder rotationOrders[6];
 };
 
 

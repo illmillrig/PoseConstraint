@@ -6,6 +6,7 @@
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
 #include <maya/MFnCompoundAttribute.h>
+#include <maya/MFnEnumAttribute.h>
 #include <maya/MFnUnitAttribute.h>
 #include <maya/MMatrix.h>
 #include <maya/MVector.h>
@@ -39,6 +40,13 @@ MObject PoseConstraint::shearXY;
 MObject PoseConstraint::shearXZ;
 MObject PoseConstraint::shearYZ;
 
+MObject PoseConstraint::rotateOrder;
+MTransformationMatrix::RotationOrder PoseConstraint::rotationOrders[6] {MTransformationMatrix::kXYZ,
+                                                                        MTransformationMatrix::kYZX,
+                                                                        MTransformationMatrix::kZXY,
+                                                                        MTransformationMatrix::kXZY,
+                                                                        MTransformationMatrix::kYXZ,
+                                                                        MTransformationMatrix::kZYX};
 
 void* PoseConstraint::creator() {
     return new PoseConstraint();
@@ -50,6 +58,7 @@ MStatus PoseConstraint::initialize() {
     MFnUnitAttribute fnUnit;
     MFnMatrixAttribute fnMat;
     MFnCompoundAttribute fnComp;
+    MFnEnumAttribute fnEnum;
 
     // Input Attributes
     offset = fnMat.create("offset", "off", MFnMatrixAttribute::kDouble);
@@ -82,6 +91,16 @@ MStatus PoseConstraint::initialize() {
     CHECK_MSTATUS(stat);
     fnMat.setKeyable(true);
     addAttribute(parentInverseMatrix);
+
+    rotateOrder = fnEnum.create("rotateOrder", "rord", 0, &stat);
+    fnEnum.setKeyable(true);
+    fnEnum.addField("xyz", 0);
+    fnEnum.addField("yzx", 1);
+    fnEnum.addField("zxy", 2);
+    fnEnum.addField("xzy", 3);
+    fnEnum.addField("yxz", 4);
+    fnEnum.addField("zyx", 5);
+    addAttribute(rotateOrder);
 
     // Output Attributes
     translateX = fnNum.create("translateX", "tx", MFnNumericData::kDouble, 0.0);
@@ -241,6 +260,23 @@ MStatus PoseConstraint::initialize() {
     attributeAffects(parentInverseMatrix, shearXZ);
     attributeAffects(parentInverseMatrix, shearYZ);
 
+    attributeAffects(rotateOrder, translate);
+    attributeAffects(rotateOrder, translateX);
+    attributeAffects(rotateOrder, translateY);
+    attributeAffects(rotateOrder, translateZ);
+    attributeAffects(rotateOrder, rotate);
+    attributeAffects(rotateOrder, rotateX);
+    attributeAffects(rotateOrder, rotateY);
+    attributeAffects(rotateOrder, rotateZ);
+    attributeAffects(rotateOrder, scale);
+    attributeAffects(rotateOrder, scaleX);
+    attributeAffects(rotateOrder, scaleY);
+    attributeAffects(rotateOrder, scaleZ);
+    attributeAffects(rotateOrder, shear);
+    attributeAffects(rotateOrder, shearXY);
+    attributeAffects(rotateOrder, shearXZ);
+    attributeAffects(rotateOrder, shearYZ);
+
     return MS::kSuccess;
 }
 
@@ -304,6 +340,10 @@ MStatus PoseConstraint::compute(const MPlug& plug, MDataBlock& data) {
     outTfm.setTranslation(posA, MSpace::kTransform);
     outTfm.setShear(shrA, MSpace::kTransform);
     outTfm = offsetTfm * outTfm.asMatrix() * invParentMat;
+
+    // reorder the rotation
+    const short rotOrder = data.inputValue(rotateOrder).asShort();
+    tfm.reorderRotation(PoseConstraint::rotationOrders[rotOrder]);
 
     // ouputs
     posA = outTfm.translation(MSpace::kTransform);
